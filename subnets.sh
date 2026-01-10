@@ -7,11 +7,33 @@ REGION="eu-central-1"
 VPC_ID="vpc-0a9de6337ea6dd6c3"
 
 ### functions
+activate_map-public-ip-on-launch() {
+    echo "Activating MapPublicIpOnLaunch for subnet $subnet_id..."
+
+    aws ec2 modify-subnet-attribute \
+        --subnet-id $subnet_id \
+        --map-public-ip-on-launch \
+        --region $REGION
+}
+
+deactivate_map-public-ip-on-launch() {
+    echo "Deactivating MapPublicIpOnLaunch for subnet $subnet_id..."
+
+    aws ec2 modify-subnet-attribute \
+        --subnet-id $subnet_id \
+        --no-map-public-ip-on-launch \
+        --region $REGION
+}
+
 list_subnets() {
     aws ec2 describe-subnets \
         --filters "Name=vpc-id,Values=$VPC_ID" \
         --region $REGION \
-        --query 'Subnets[].{ID:SubnetId,CIDR:CidrBlock,AZ:AvailabilityZone,State:State}' \
+        --query 'Subnets[].{ID:SubnetId,
+                            CIDR:CidrBlock,
+                            AZ:AvailabilityZone,
+                            State:State,
+                            PublicIP:MapPublicIpOnLaunch}' \
         --output table
 }
 
@@ -53,6 +75,7 @@ show_route() {
 
 ### command
 option=$1
+subnet_id=$2
 
 if [ "$option" == "list" ]
 then

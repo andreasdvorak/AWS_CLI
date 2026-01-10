@@ -39,7 +39,12 @@ list_instances() {
     aws ec2 describe-instances \
         --region ${REGION} \
         --filters "Name=tag:Name,Values=${TAG_NAME}" \
-        --query 'Reservations[].Instances[].{ID:InstanceId,Type:InstanceType,State:State.Name,AZ:Placement.AvailabilityZone,PublicIP:PublicIpAddress,PrivateIP:PrivateIpAddress}' \
+        --query 'Reservations[].Instances[].{ID:InstanceId,
+                                             Type:InstanceType,
+                                             State:State.Name,
+                                             AZ:Placement.AvailabilityZone,
+                                             PublicIP:PublicIpAddress,
+                                             PrivateIP:PrivateIpAddress}' \
         --output table
 }
 
@@ -51,6 +56,7 @@ get_status() {
         --region ${REGION} \
         --query "Reservations[].Instances[].{ID:InstanceId,
                                              State:State.Name,
+                                             AZ:Placement.AvailabilityZone,
                                              PublicIP:PublicIpAddress,
                                              PrivateIP:PrivateIpAddress,
                                              Type:InstanceType,
@@ -59,15 +65,18 @@ get_status() {
 }
 
 ### command
+option=$1
 
-# Get the latest Amazon Linux 2 AMI ID
-#IMAGE_ID=$(aws ec2 describe-images \
-#    --owners amazon \
-#    --filters "Name=name,Values=amzn2-ami-hvm-*-x86_64-gp2" \
-#    --region eu-central-1 \
-#    --query 'Images[0].ImageId')
-
-list_instances
-
-get_status
-
+if [ "$option" == "create" ]; then
+    create_instance
+    exit 0
+elif [ "$option" == "list" ]; then
+    list_instances
+    exit 0
+elif [ "$option" == "status" ]; then
+    get_status
+    exit 0
+else
+    echo "Usage: $0 {create|list|status}"
+    exit 1
+fi
