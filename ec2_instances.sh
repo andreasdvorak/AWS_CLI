@@ -13,6 +13,7 @@ IMAGE_ID="ami-0387413ed05eb20af"
 TAG_NAME="MyEC2Instance" 
 TAG_ROLE="WebServer"
 IMAGE_FILTER="amzn2-ami-hvm-*-x86_64-gp2"
+TAG_SNAPSHOT="true"
 
 ### functions
 create_instance() {
@@ -27,7 +28,8 @@ create_instance() {
         --region ${REGION} \
         --instance-initiated-shutdown-behavior stop \
         --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value='${TAG_NAME}'}, \
-                                                        {Key=Role,Value='${TAG_ROLE}'}]" \
+                                                        {Key=Role,Value='${TAG_ROLE}'}, \
+                                                        {Key=Snapshot,Value='${TAG_SNAPSHOT}'}]" \
                             "ResourceType=volume,Tags=[{Key=Name,Value='${TAG_NAME}-root'}]" \
                             "ResourceType=network-interface,Tags=[{Key=Name,Value='${TAG_NAME}-eni'}]" \
         >> ${TAG_NAME}_instance_launch.log
