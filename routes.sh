@@ -1,10 +1,8 @@
-#/bin/bash
+#!/bin/bash
 #
 # Administration AWS routes in the specified AWS region.
 
 ### variables
-REGION="eu-central-1"
-VPC_ID="vpc-0a9de6337ea6dd6c3"
 
 ### functions
 list_routes() {

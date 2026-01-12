@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #
 # Administration AWS EC2 subnets in the specified AWS region.
 
@@ -11,24 +11,24 @@ activate_map-public-ip-on-launch() {
     echo "Activating MapPublicIpOnLaunch for subnet $subnet_id..."
 
     aws ec2 modify-subnet-attribute \
-        --subnet-id $subnet_id \
+        --subnet-id "$subnet_id" \
         --map-public-ip-on-launch \
-        --region $REGION
+        --region "$REGION"
 }
 
 deactivate_map-public-ip-on-launch() {
     echo "Deactivating MapPublicIpOnLaunch for subnet $subnet_id..."
 
     aws ec2 modify-subnet-attribute \
-        --subnet-id $subnet_id \
+        --subnet-id "$subnet_id" \
         --no-map-public-ip-on-launch \
-        --region $REGION
+        --region "$REGION"
 }
 
 list_subnets() {
     aws ec2 describe-subnets \
         --filters "Name=vpc-id,Values=$VPC_ID" \
-        --region $REGION \
+        --region "$REGION" \
         --query 'Subnets[].{ID:SubnetId,
                             CIDR:CidrBlock,
                             AZ:AvailabilityZone,
@@ -41,27 +41,27 @@ show_route() {
     echo "subnet | name | cidr | az | type"
     for subnet in $(aws ec2 describe-subnets \
         --filters "Name=vpc-id,Values=$VPC_ID" \
-        --region $REGION \
+        --region "$REGION" \
         --query 'Subnets[].SubnetId' \
         --output text); do
         name=$(aws ec2 describe-subnets \
-            --subnet-ids $subnet \
-            --region $REGION \
+            --subnet-ids "$subnet" \
+            --region "$REGION" \
             --query 'Subnets[0].Tags[?Key==`Name`].Value | [0]' \
             --output text)
         az=$(aws ec2 describe-subnets \
-            --subnet-ids $subnet \
-            --region $REGION \
+            --subnet-ids "$subnet" \
+            --region "$REGION" \
             --query 'Subnets[0].AvailabilityZone' \
             --output text)
         cidr=$(aws ec2 describe-subnets \
-            --subnet-ids $subnet \
-            --region $REGION \
+            --subnet-ids "$subnet" \
+            --region "$REGION" \
             --query 'Subnets[0].CidrBlock' \
             --output text)
         route=$(aws ec2 describe-route-tables \
             --filters "Name=association.subnet-id,Values=$subnet" \
-            --region $REGION \
+            --region "$REGION" \
             --query 'RouteTables[].Routes[?GatewayId!=null].GatewayId' \
             --output text)
         if [[ -n "$route" ]]; then

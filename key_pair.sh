@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #
 # Administration of AWS EC2 key pair.
 # The key pair is created in the specified AWS region.

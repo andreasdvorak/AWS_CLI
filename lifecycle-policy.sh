@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #
 # Administration of AWS S3 lifecycle policies.
 
@@ -16,7 +16,7 @@ list_lifecycle_policies() {
 create_lifecycle_policy() {
     aws dlm create-lifecycle-policy \
     --tags Name=DailySnapshotPolicy \
-    --execution-role-arn $EXECUTION_ROLE_ARN \
+    --execution-role-arn "$EXECUTION_ROLE_ARN" \
     --description "$DESCRIPTION" \
     --state ENABLED \
     --policy-details '{

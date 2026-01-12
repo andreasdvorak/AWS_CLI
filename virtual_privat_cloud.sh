@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #
 # This script lists all AWS virtual private clouds (VPCs) in the specified AWS region.
 

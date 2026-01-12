@@ -1,18 +1,15 @@
-#/bin/bash
+#!/bin/bash
 #
 # This script lists all AWS virtual private clouds (VPCs) in the specified AWS region.
 
 ### variables
 REGION="eu-central-1"
-VPC_ID="vpc-0a9de6337ea6dd6c3"
 KEY_PAIR="MyKeyPair"
 SECURITY_GROUP_ID="sg-007c4d152a6a96ad6 sg-03440fa427203b731"
-SUBNET_ID="subnet-0123456789abcdef0"
 INSTANCE_TYPE="t3.micro"
 IMAGE_ID="ami-0387413ed05eb20af"
 TAG_NAME="MyEC2Instance" 
 TAG_ROLE="WebServer"
-IMAGE_FILTER="amzn2-ami-hvm-*-x86_64-gp2"
 TAG_SNAPSHOT="true"
 
 ### functions
@@ -20,12 +17,12 @@ create_instance() {
     echo "Creating EC2 instance..."
 
     aws ec2 run-instances \
-        --image-id ${IMAGE_ID} \
-        --instance-type ${INSTANCE_TYPE} \
-        --key-name ${KEY_PAIR} \
+        --image-id "${IMAGE_ID}" \
+        --instance-type "${INSTANCE_TYPE}" \
+        --key-name "${KEY_PAIR}" \
         --count 1 \
-        --security-group-ids ${SECURITY_GROUP_ID} \
-        --region ${REGION} \
+        --security-group-ids "${SECURITY_GROUP_ID}" \
+        --region "${REGION}" \
         --instance-initiated-shutdown-behavior stop \
         --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value='${TAG_NAME}'}, \
                                                         {Key=Role,Value='${TAG_ROLE}'}, \
@@ -39,17 +36,17 @@ create_instance() {
 get_instance_id() {
     INSTANCE_ID=$(aws ec2 describe-instances \
         --filters "Name=tag:Name,Values=${TAG_NAME}" \
-        --region ${REGION} \
+        --region "${REGION}" \
         --query "Reservations[].Instances[].InstanceId" \
         --output text)
-    echo ${INSTANCE_ID}
+    echo "${INSTANCE_ID}"
 }
 
 list_instances() {
     echo "Listing EC2 instances..."
 
     aws ec2 describe-instances \
-        --region ${REGION} \
+        --region "${REGION}" \
         --filters "Name=tag:Name,Values=${TAG_NAME}" \
         --query 'Reservations[].Instances[].{ID:InstanceId,
                                              Type:InstanceType,
@@ -65,7 +62,7 @@ get_status() {
 
     aws ec2 describe-instances \
         --filters "Name=tag:Name,Values=${TAG_NAME}" \
-        --region ${REGION} \
+        --region "${REGION}" \
         --query "Reservations[].Instances[].{ID:InstanceId,
                                              State:State.Name,
                                              AZ:Placement.AvailabilityZone,
@@ -87,8 +84,8 @@ terminate_instance() {
     echo "Terminating EC2 instance ${INSTANCE_ID}..."
 
     aws ec2 terminate-instances \
-        --instance-ids ${INSTANCE_ID} \
-        --region ${REGION} \
+        --instance-ids "${INSTANCE_ID}" \
+        --region "${REGION}" \
         >> ${TAG_NAME}_instance_termination.log
 }   
 

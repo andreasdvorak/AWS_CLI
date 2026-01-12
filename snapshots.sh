@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 # Administration of AWS EC2 snapshots
 #
 
@@ -9,7 +9,7 @@ REGION="eu-central-1"
 list_snapshots() {
     echo "Listing EC2 snapshots..." 
     aws ec2 describe-snapshots \
-        --region ${REGION} \
+        --region "${REGION}" \
         --filters "Name=tag:Name,Values=${snapshot_name}" \
         --owner-ids self \
         --query 'Snapshots[].{ID:SnapshotId,
@@ -31,8 +31,8 @@ delete_snapshot() {
     echo "Deleting EC2 snapshot ${SNAPSHOT_ID}..."
 
     aws ec2 delete-snapshot \
-        --snapshot-id ${SNAPSHOT_ID} \
-        --region ${REGION} \
+        --snapshot-id "${SNAPSHOT_ID}" \
+        --region "${REGION}" \
         >> snapshot_deletion.log
 }
 
@@ -44,7 +44,7 @@ if [ "$option" == "list" ]; then
     list_snapshots
     exit 0
 elif [ "$option" == "delete" ]; then
-    delete_snapshot $2
+    delete_snapshot "$2"
     exit 0
 else
     echo "Usage: $0 {list <NAME>|delete <SNAPSHOT_ID>}"

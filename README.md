@@ -27,3 +27,14 @@ Test the connection
 ```
 aws iam list-users
 ```
+
+# Linter
+Installation of shellcheck
+```
+sudo apt-get install shellcheck
+```
+
+Run shellcheck
+```
+shellcheck *.sh
+```
