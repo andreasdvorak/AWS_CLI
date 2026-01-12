@@ -30,9 +30,19 @@ create_instance() {
         --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value='${TAG_NAME}'}, \
                                                         {Key=Role,Value='${TAG_ROLE}'}, \
                                                         {Key=Snapshot,Value='${TAG_SNAPSHOT}'}]" \
-                            "ResourceType=volume,Tags=[{Key=Name,Value='${TAG_NAME}-root'}]" \
+                            "ResourceType=volume,Tags=[{Key=Name,Value='${TAG_NAME}-root'}, \
+                                                        {Key=Snapshot,Value='${TAG_SNAPSHOT}'}]" \
                             "ResourceType=network-interface,Tags=[{Key=Name,Value='${TAG_NAME}-eni'}]" \
         >> ${TAG_NAME}_instance_launch.log
+}
+
+get_instance_id() {
+    INSTANCE_ID=$(aws ec2 describe-instances \
+        --filters "Name=tag:Name,Values=${TAG_NAME}" \
+        --region ${REGION} \
+        --query "Reservations[].Instances[].InstanceId" \
+        --output text)
+    echo ${INSTANCE_ID}
 }
 
 list_instances() {
@@ -66,6 +76,22 @@ get_status() {
         --output table
 }
 
+terminate_instance() {
+    INSTANCE_ID=$(get_instance_id)
+
+    if [ -z "${INSTANCE_ID}" ]; then
+        echo "No instance found with the name ${TAG_NAME}."
+        return
+    fi
+
+    echo "Terminating EC2 instance ${INSTANCE_ID}..."
+
+    aws ec2 terminate-instances \
+        --instance-ids ${INSTANCE_ID} \
+        --region ${REGION} \
+        >> ${TAG_NAME}_instance_termination.log
+}   
+
 ### command
 option=$1
 
@@ -78,7 +104,10 @@ elif [ "$option" == "list" ]; then
 elif [ "$option" == "status" ]; then
     get_status
     exit 0
+elif [ "$option" == "terminate" ]; then
+    terminate_instance
+    exit 0
 else
-    echo "Usage: $0 {create|list|status}"
+    echo "Usage: $0 {create|list|status|terminate}"
     exit 1
 fi
